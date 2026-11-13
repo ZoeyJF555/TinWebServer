@@ -29,10 +29,13 @@ jobs:
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           sleep 1
 
+          # curl normalises "/../" unless --path-as-is is given, so the
+          # traversal check has to send the raw target.
           check() {
             local description="$1" expected="$2" url="$3"
+            shift 3
             local actual
-            actual=$(curl -s -o /dev/null -w '%{http_code}' "$url")
+            actual=$(curl -s -o /dev/null -w '%{http_code}' "$@" "$url")
             echo "$description: $actual"
             test "$actual" = "$expected"
           }
@@ -40,7 +43,7 @@ jobs:
           check "index" 200 http://127.0.0.1:18080/
           check "stylesheet" 200 http://127.0.0.1:18080/style.css
           check "missing file" 404 http://127.0.0.1:18080/missing
-          check "traversal" 400 "http://127.0.0.1:18080/../etc/passwd"
+          check "traversal" 400 http://127.0.0.1:18080/../etc/passwd --path-as-is
 
           echo "--- server log ---"
           cat server.log
