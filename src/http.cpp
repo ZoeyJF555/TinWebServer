@@ -101,8 +101,9 @@ ParseState parse_request(std::string_view buffer, HttpRequest& request) {
                              to_lower(connection->second) == "close";
 
     if (request.version == "HTTP/1.0") {
-        request.keep_alive = !(connection != request.headers.end() &&
-                               to_lower(connection->second) == "keep-alive");
+        // HTTP/1.0 closes by default; the client has to ask for keep-alive.
+        request.keep_alive = connection != request.headers.end() &&
+                             to_lower(connection->second) == "keep-alive";
     } else {
         request.keep_alive = !wants_close;
     }
