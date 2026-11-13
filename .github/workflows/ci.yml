@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build, unit tests and smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: make
+
+      - name: Unit tests
+        run: make test
+
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          ./tinweb --port 18080 --root www > server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+
+          check() {
+            local description="$1" expected="$2" url="$3"
+            local actual
+            actual=$(curl -s -o /dev/null -w '%{http_code}' "$url")
+            echo "$description: $actual"
+            test "$actual" = "$expected"
+          }
+
+          check "index" 200 http://127.0.0.1:18080/
+          check "stylesheet" 200 http://127.0.0.1:18080/style.css
+          check "missing file" 404 http://127.0.0.1:18080/missing
+          check "traversal" 400 "http://127.0.0.1:18080/../etc/passwd"
+
+          echo "--- server log ---"
+          cat server.log
