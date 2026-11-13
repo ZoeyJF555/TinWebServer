@@ -1,0 +1,9 @@
+build/
+tinweb
+*.o
+*.d
+
+# Editor and OS noise
+.idea/
+.vscode/
+.DS_Store

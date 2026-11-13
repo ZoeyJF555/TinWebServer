@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>tinweb</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main>
+    <h1>tinweb</h1>
+    <p>A small HTTP/1.1 server written in C++20 on top of <code>epoll</code>.</p>
+
+    <h2>What it does</h2>
+    <ul>
+      <li>Serves static files from one directory</li>
+      <li>Handles <code>GET</code> and <code>HEAD</code></li>
+      <li>Keeps connections alive between requests</li>
+      <li>Rejects any path that tries to escape the document root</li>
+    </ul>
+
+    <p class="note">This page lives in <code>www/index.html</code>. Replace it with your own files.</p>
+  </main>
+</body>
+</html>
